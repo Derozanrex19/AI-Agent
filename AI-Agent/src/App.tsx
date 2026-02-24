@@ -113,9 +113,11 @@ export default function App() {
         {/* Header Section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            {/* Lifewood Logo Placeholder - Diamond Shape */}
-            <div className="w-8 h-12 bg-lifewood-saffaron clip-diamond mr-3" style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }}></div>
-            <h1 className="text-4xl font-bold text-lifewood-dark-serpent tracking-tight">lifewood</h1>
+            <img
+              src="https://framerusercontent.com/images/BZSiFYgRc4wDUAuEybhJbZsIBQY.png?width=1519&height=429"
+              alt="Lifewood logo"
+              className="h-14 w-auto max-w-full"
+            />
           </div>
           <h2 className="text-xl font-medium text-lifewood-dark-serpent/80 uppercase tracking-wider">Daily Head Count Monitoring</h2>
         </div>
