@@ -256,17 +256,18 @@ export default function App() {
 
           <HowItWorks />
         </div>
+
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-lifewood-paper text-lifewood-dark-serpent">
+    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#046241_0%,#FFB347_100%)] text-lifewood-dark-serpent">
       <div className="pointer-events-none absolute inset-0">
         <Grainient
-          color1="#A7D4BF"
-          color2="#3A8B69"
-          color3="#133020"
+          color1="#046241"
+          color2="#FFB347"
+          color3="#046241"
           timeSpeed={0.18}
           colorBalance={0.02}
           warpStrength={0.75}
@@ -301,7 +302,7 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.88, y: 14 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.05, type: 'spring', stiffness: 220, damping: 16 }}
-              src="https://framerusercontent.com/images/BZSiFYgRc4wDUAuEybhJbZsIBQY.png?width=1519&height=429"
+              src="https://framerusercontent.com/images/Ca8ppNsvJIfTsWEuHr50gvkDow.png?scale-down-to=512&width=2624&height=474"
               alt="Lifewood logo"
               className="mb-8 h-16 w-auto drop-shadow-[0_8px_30px_rgba(0,0,0,0.35)] md:h-24"
             />
@@ -384,9 +385,9 @@ export default function App() {
                 initial={{ opacity: 0, scale: 0.94, y: 8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.04 }}
-                src="https://framerusercontent.com/images/BZSiFYgRc4wDUAuEybhJbZsIBQY.png?width=1519&height=429"
+                src="https://framerusercontent.com/images/Ca8ppNsvJIfTsWEuHr50gvkDow.png?scale-down-to=512&width=2624&height=474"
                 alt="Lifewood logo"
-                className="mx-auto h-16 w-auto drop-shadow-[0_12px_28px_rgba(0,0,0,0.35)] md:h-20"
+                className="mx-auto h-12 w-auto drop-shadow-[0_12px_28px_rgba(0,0,0,0.35)] md:h-14"
               />
 
               <motion.p
@@ -417,8 +418,7 @@ export default function App() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Admin"
-                    className="w-full rounded-xl border border-white/25 bg-white/12 px-4 py-3 text-white placeholder:text-white/45 outline-none ring-0 backdrop-blur-md transition focus:border-white/60"
+                    className="w-full rounded-xl border border-white/25 bg-white/12 px-4 py-3 text-white outline-none ring-0 backdrop-blur-md transition focus:border-white/60"
                   />
                 </div>
 
@@ -434,8 +434,7 @@ export default function App() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Admin123"
-                    className="w-full rounded-xl border border-white/25 bg-white/12 px-4 py-3 text-white placeholder:text-white/45 outline-none ring-0 backdrop-blur-md transition focus:border-white/60"
+                    className="w-full rounded-xl border border-white/25 bg-white/12 px-4 py-3 text-white outline-none ring-0 backdrop-blur-md transition focus:border-white/60"
                   />
                 </div>
 

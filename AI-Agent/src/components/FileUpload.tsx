@@ -1,11 +1,16 @@
 import * as React from 'react';
-import { UploadCloud, FileSpreadsheet, X, FileText, AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileSpreadsheet,
+  FileText,
+  FolderUp,
+  UploadCloud,
+  X,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/Button';
-
-// Since I cannot install react-dropzone right now without checking, I'll implement a custom dropzone to be safe and avoid extra deps if possible, 
-// BUT react-dropzone is very robust. I'll stick to manual implementation to keep dependency count low as requested "Use popular and existing libraries" - react-dropzone is popular but I can do it with native API easily.
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -53,14 +58,19 @@ export function FileUpload({ onFileSelect, onFileRemove, selectedFile, error, di
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       validateAndSelect(e.target.files[0]);
+      e.target.value = '';
     }
   };
 
-  const validateAndSelect = (file: File) => {
-    // Basic validation logic is handled by parent, but we can do a quick check here if needed.
-    // Parent handles the actual "onFileSelect" which triggers validation state updates.
-    onFileSelect(file);
+  const handleZoneKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      inputRef.current?.click();
+    }
   };
+
+  const validateAndSelect = (file: File) => onFileSelect(file);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -70,14 +80,25 @@ export function FileUpload({ onFileSelect, onFileRemove, selectedFile, error, di
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const selectedFileExt = selectedFile?.name.split('.').pop()?.toLowerCase() ?? '';
+
   return (
     <div className="w-full space-y-4">
+      <input
+        ref={inputRef}
+        type="file"
+        className="hidden"
+        accept=".xlsx,.xls,.csv"
+        onChange={handleChange}
+        disabled={disabled}
+      />
+
       <AnimatePresence mode="wait">
         {!selectedFile ? (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -12 }}
             key="dropzone"
           >
             <div
@@ -86,42 +107,68 @@ export function FileUpload({ onFileSelect, onFileRemove, selectedFile, error, di
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={() => !disabled && inputRef.current?.click()}
+              onKeyDown={handleZoneKeyDown}
+              role="button"
+              tabIndex={disabled ? -1 : 0}
               className={cn(
-                "relative flex flex-col items-center justify-center w-full h-64 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer bg-white",
-                isDragActive 
-                  ? "border-lifewood-castleton bg-lifewood-castleton/5 scale-[1.01]" 
-                  : "border-gray-300 hover:border-lifewood-castleton/50 hover:bg-gray-50",
-                disabled && "opacity-50 cursor-not-allowed hover:bg-white hover:border-gray-300",
-                error && "border-red-300 bg-red-50 hover:bg-red-50 hover:border-red-300"
+                'relative isolate overflow-hidden rounded-2xl border border-dashed p-8 transition-all duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lifewood-castleton/60',
+                isDragActive && 'scale-[1.01] border-lifewood-castleton bg-white/95 shadow-lg',
+                !isDragActive && 'border-lifewood-dark-serpent/20 bg-gradient-to-br from-white to-lifewood-paper/40 hover:border-lifewood-castleton/40 hover:shadow-md',
+                disabled && 'cursor-not-allowed opacity-55 hover:border-lifewood-dark-serpent/20 hover:shadow-none',
+                error && 'border-red-300 from-red-50 to-white hover:border-red-300'
               )}
             >
-              <input
-                ref={inputRef}
-                type="file"
-                className="hidden"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleChange}
-                disabled={disabled}
-              />
-              
-              <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                <div className={cn(
-                  "p-4 rounded-full mb-4 transition-colors",
-                  isDragActive ? "bg-lifewood-castleton/10 text-lifewood-castleton" : "bg-gray-100 text-gray-500",
-                  error && "bg-red-100 text-red-500"
-                )}>
-                  <UploadCloud className="w-8 h-8" />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/80 to-transparent" />
+
+              <div className="relative flex flex-col items-center justify-center text-center">
+                <div
+                  className={cn(
+                    'mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl border transition-colors',
+                    isDragActive && 'border-lifewood-castleton/35 bg-lifewood-castleton/12 text-lifewood-castleton',
+                    !isDragActive && 'border-lifewood-dark-serpent/15 bg-white text-lifewood-dark-serpent/65',
+                    error && 'border-red-300 bg-red-50 text-red-500'
+                  )}
+                >
+                  <UploadCloud className="h-7 w-7" />
                 </div>
-                
-                <p className="mb-2 text-lg font-semibold text-lifewood-dark-serpent">
-                  {isDragActive ? "Drop file here" : "Click to upload or drag and drop"}
+
+                <p className="mb-1 text-lg font-semibold text-lifewood-dark-serpent">
+                  {isDragActive ? 'Drop file to upload' : 'Upload attendance file'}
                 </p>
-                <p className="text-sm text-gray-500">
-                  Excel (.xlsx, .xls) or CSV (.csv)
+                <p className="text-sm text-lifewood-dark-serpent/65">
+                  Drag and drop your file here, or browse from your computer.
                 </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Max file size: 10MB
-                </p>
+
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                  <span className="rounded-full border border-lifewood-dark-serpent/15 bg-white px-3 py-1 text-xs font-medium text-lifewood-dark-serpent/80">
+                    .xlsx
+                  </span>
+                  <span className="rounded-full border border-lifewood-dark-serpent/15 bg-white px-3 py-1 text-xs font-medium text-lifewood-dark-serpent/80">
+                    .xls
+                  </span>
+                  <span className="rounded-full border border-lifewood-dark-serpent/15 bg-white px-3 py-1 text-xs font-medium text-lifewood-dark-serpent/80">
+                    .csv
+                  </span>
+                  <span className="rounded-full border border-lifewood-dark-serpent/15 bg-white px-3 py-1 text-xs font-medium text-lifewood-dark-serpent/80">
+                    Max 10MB
+                  </span>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={disabled}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.click();
+                  }}
+                  className="mt-6 border-lifewood-castleton/35 text-lifewood-castleton hover:bg-lifewood-castleton/8"
+                >
+                  <FolderUp className="mr-2 h-4 w-4" />
+                  Browse Files
+                </Button>
               </div>
             </div>
           </motion.div>
@@ -132,45 +179,89 @@ export function FileUpload({ onFileSelect, onFileRemove, selectedFile, error, di
             exit={{ opacity: 0, scale: 0.95 }}
             key="file-preview"
             className={cn(
-              "relative flex items-center p-4 bg-white border rounded-xl shadow-sm",
-              error ? "border-red-200 bg-red-50/50" : "border-gray-200"
+              'relative rounded-2xl border bg-white p-4 shadow-sm transition-all md:p-5',
+              error ? 'border-red-200 bg-red-50/40' : 'border-lifewood-dark-serpent/10'
             )}
           >
-            <div className={cn(
-              "flex items-center justify-center w-12 h-12 rounded-lg mr-4 shrink-0",
-              fileTypeColor(selectedFile.name)
-            )}>
-              <FileIcon fileName={selectedFile.name} className="w-6 h-6 text-white" />
-            </div>
-            
-            <div className="flex-1 min-w-0 mr-4">
-              <p className="text-sm font-medium text-lifewood-dark-serpent truncate">
-                {selectedFile.name}
-              </p>
-              <p className="text-xs text-gray-500">
-                {formatFileSize(selectedFile.size)}
-              </p>
-              {error && (
-                <div className="flex items-center mt-1 text-xs text-red-600 font-medium">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  {error}
+            <div className="flex w-full items-start gap-4">
+              <div
+                className={cn(
+                  'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white',
+                  fileTypeColor(selectedFile.name)
+                )}
+              >
+                <FileIcon fileName={selectedFile.name} className="h-6 w-6" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate text-sm font-semibold text-lifewood-dark-serpent md:text-base">
+                    {selectedFile.name}
+                  </p>
+                  <span
+                    className={cn(
+                      'rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide',
+                      error
+                        ? 'border-red-300 bg-red-100/70 text-red-700'
+                        : 'border-green-200 bg-green-100/70 text-green-700'
+                    )}
+                  >
+                    {error ? 'Needs attention' : 'Ready'}
+                  </span>
+                </div>
+
+                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-lifewood-dark-serpent/60">
+                  <span>{formatFileSize(selectedFile.size)}</span>
+                  <span className="uppercase">{selectedFileExt || 'file'}</span>
+                  <span>{getFileTypeLabel(selectedFile.name)}</span>
+                </div>
+
+                {error && (
+                  <div className="mt-2 inline-flex items-center rounded-lg border border-red-200 bg-red-100/50 px-2.5 py-1 text-xs font-medium text-red-700">
+                    <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
+                    {error}
+                  </div>
+                )}
+              </div>
+
+              {!disabled && (
+                <div className="flex shrink-0 items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      inputRef.current?.click();
+                    }}
+                    className="text-lifewood-castleton hover:bg-lifewood-castleton/10 hover:text-lifewood-dark-serpent"
+                  >
+                    <FolderUp className="mr-1.5 h-4 w-4" />
+                    Replace
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFileRemove();
+                    }}
+                    className="h-8 w-8 rounded-full p-0 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Remove file</span>
+                  </Button>
                 </div>
               )}
             </div>
 
-            {!disabled && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFileRemove();
-                }}
-                className="text-gray-400 hover:text-red-600 hover:bg-red-50 h-8 w-8 p-0 rounded-full"
-              >
-                <X className="w-4 h-4" />
-                <span className="sr-only">Remove file</span>
-              </Button>
+            {!error && (
+              <div className="mt-3 inline-flex items-center text-xs font-medium text-lifewood-castleton">
+                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+                File selected successfully.
+              </div>
             )}
           </motion.div>
         )}
@@ -183,6 +274,13 @@ function FileIcon({ fileName, className }: { fileName: string; className?: strin
   const ext = fileName.split('.').pop()?.toLowerCase();
   if (ext === 'csv') return <FileText className={className} />;
   return <FileSpreadsheet className={className} />;
+}
+
+function getFileTypeLabel(fileName: string) {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  if (ext === 'csv') return 'CSV Document';
+  if (ext === 'xls' || ext === 'xlsx') return 'Excel Spreadsheet';
+  return 'Document';
 }
 
 function fileTypeColor(fileName: string) {
