@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
 @theme {
   --color-lifewood-paper: #f5eedb;
@@ -11,12 +11,18 @@
   --color-lifewood-seasalt: #F9F7F7;
 
   --font-manrope: "Manrope", sans-serif;
+  --font-display: "Manrope", sans-serif;
+  --font-body: "Manrope", sans-serif;
 }
 
 body {
-  font-family: var(--font-manrope);
+  font-family: var(--font-body);
   background-color: var(--color-lifewood-paper);
   color: var(--color-lifewood-dark-serpent);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
 }
